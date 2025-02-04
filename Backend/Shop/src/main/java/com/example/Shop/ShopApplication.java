@@ -1,0 +1,16 @@
+package com.example.Shop;
+
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+
+@SpringBootApplication
+public class ShopApplication {
+
+	public static void main(String[] args) {
+		SpringApplication.run(ShopApplication.class, args);
+	}
+
+	
+	
+	//za git treba da budem u \eclipse-workspace-springboot
+}
