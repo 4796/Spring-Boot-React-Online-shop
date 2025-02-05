@@ -1,6 +1,7 @@
 package com.example.Shop.controller;
 
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -12,16 +13,12 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
-import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-
 import com.example.Shop.model.Client;
 import com.example.Shop.model.Order;
-import com.example.Shop.model.Product;
 import com.example.Shop.model.User;
 import com.example.Shop.model.Worker;
 import com.example.Shop.service.AuthService;
-import com.example.Shop.service.ProductService;
 import com.example.Shop.service.UserService;
 
 @RestController
@@ -51,10 +48,22 @@ public class LoginController {
 	
 	//client
 	@PostMapping("/register")
-	public ResponseEntity<User> login(@RequestBody Client client, @RequestHeader("Authorization") String token){
-		
+	public ResponseEntity<User> login(@RequestBody Map<String, Object> mapa, @RequestHeader("Authorization") String token){
+		Client me=null;
+		Client client=null;
+		try {
+			me=(Client) mapa.get("client");
+			client=(Client) mapa.get("newclient");
+			String username = authService.validateTokenAndGetUser(token); 
+	        if (username == null || !username.equals(me.getUsername())) {
+	        	return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+	        }
+		} catch (Exception e) {
+			e.printStackTrace();
+			return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+		}
         
-		
+
 		Client c=userService.register(client);
 		if(c==null)
 			return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
@@ -119,7 +128,20 @@ public class LoginController {
 	
 	//worker
 	@PostMapping("/worker/add")
-	public ResponseEntity<Worker> newWorker(@RequestBody Worker worker, @RequestHeader("Authorization") String token){
+	public ResponseEntity<Worker> newWorker(@RequestBody Map<String, Object> mapa, @RequestHeader("Authorization") String token){
+		Worker me=null;
+		Worker worker=null;
+		try {
+			me=(Worker) mapa.get("worker");
+			worker=(Worker) mapa.get("newworker");
+			String username = authService.validateTokenAndGetUser(token); 
+	        if (username == null || !username.equals(me.getUsername())) {
+	        	return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+	        }
+		} catch (Exception e) {
+			e.printStackTrace();
+			return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+		}
 		
 		
 		Worker w=userService.addWorker(worker);
