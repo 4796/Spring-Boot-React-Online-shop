@@ -8,6 +8,8 @@ import org.springframework.stereotype.Service;
 import com.example.Shop.db.ProductRepo;
 import com.example.Shop.model.Product;
 
+import jakarta.transaction.Transactional;
+
 @Service
 public class ProductService {
 
@@ -23,15 +25,18 @@ public class ProductService {
 		return repo.findById(id).orElse(null);
 	}
 
+	@Transactional
 	public Product addProduct(Product product) {
 		return repo.save(product);
 	}
 
+	@Transactional
 	public Product updateProduct(Product product) {
 		
 		return repo.save(product);
 	}
 
+	@Transactional
 	public void deleteProduct(int id) {
 		repo.deleteById(id);
 		

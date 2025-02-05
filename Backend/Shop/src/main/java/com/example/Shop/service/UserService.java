@@ -12,6 +12,8 @@ import com.example.Shop.model.Product;
 import com.example.Shop.model.User;
 import com.example.Shop.model.Worker;
 
+import jakarta.transaction.Transactional;
+
 @Service
 public class UserService {
 	@Autowired
@@ -66,12 +68,14 @@ public class UserService {
 		return found;
 	}
 
+	@Transactional
 	public Client register(Client client) {
 		if (clientRepo.existsById(client.getUsername()))
 			return null;
 		return clientRepo.save(client);
 	}
 
+	@Transactional
 	public Client addToCart(int id, Client client) {
 		try {
 			Product p=new Product();
@@ -86,6 +90,7 @@ public class UserService {
 		
 	}
 
+	@Transactional
 	public Order buy(Order order) {
 		try {
 			
@@ -111,6 +116,7 @@ public class UserService {
 		
 	}
 
+	@Transactional
 	public Worker addWorker(Worker worker) {
 		try {
 			if(worker.getUsername().length()<3 || worker.getPassword().length()<3) {
@@ -137,6 +143,7 @@ public class UserService {
 		
 	}
 
+	@Transactional
 	public Worker updateWorker(Worker worker) {
 		try {
 			if(worker.getUsername().length()<3 || worker.getPassword().length()<3) {
@@ -156,6 +163,7 @@ public class UserService {
 		
 	}
 
+	@Transactional
 	public Worker deleteWorker(Worker worker) {
 		try {
 			workerRepo.deleteById(worker.getUsername());
