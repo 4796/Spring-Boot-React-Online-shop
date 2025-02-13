@@ -78,8 +78,8 @@ public class UserService {
 	@Transactional
 	public Client addToCart(int id, Client client) {
 		try {
-			Product p=new Product();
-			p.setId(id);
+			Product p=productRepo.findById(id).orElseThrow();
+			client=clientRepo.findById(client.getUsername()).orElseThrow();
 			client.getProductsInCart().add(p);
 			Client c=clientRepo.save(client);
 			return c;
@@ -107,7 +107,9 @@ public class UserService {
 			l.remove(p);
 			c.setProductsInCart(l);
 			clientRepo.save(c);
-			return orderRepo.save(order);
+			Order o=orderRepo.save(order);
+			o.getClient().setProductsInCart(l);
+			return o;
 		} catch (Exception e) {
 			e.printStackTrace();
 			return null;
@@ -164,9 +166,9 @@ public class UserService {
 	}
 
 	@Transactional
-	public Worker deleteWorker(Worker worker) {
+	public String deleteWorker(String worker) {
 		try {
-			workerRepo.deleteById(worker.getUsername());
+			workerRepo.deleteById(worker);
 			return worker;
 		} catch (Exception e) {
 			e.printStackTrace();

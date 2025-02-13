@@ -9,7 +9,7 @@ export default function LoginPage() {
   const navigate = useNavigate();
   const handleLogin = async (e) => {
     e.preventDefault();
-    setError(""); // Reset error before a new request
+    setError(""); 
 
     try {
       const response = await axios.post("http://localhost:8080/login", {

@@ -16,10 +16,12 @@ import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RestController;
 import com.example.Shop.model.Client;
 import com.example.Shop.model.Order;
+import com.example.Shop.model.Product;
 import com.example.Shop.model.User;
 import com.example.Shop.model.Worker;
 import com.example.Shop.service.AuthService;
 import com.example.Shop.service.UserService;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 @RestController
 public class LoginController {
@@ -46,36 +48,21 @@ public class LoginController {
 			
 	}
 	
-	//client
+	//client     da
 	@PostMapping("/register")
-	public ResponseEntity<User> login(@RequestBody Map<String, Object> mapa, @RequestHeader("Authorization") String token){
-		Client me=null;
-		Client client=null;
-		try {
-			me=(Client) mapa.get("client");
-			client=(Client) mapa.get("newclient");
-			String username = authService.validateTokenAndGetUser(token); 
-	        if (username == null || !username.equals(me.getUsername())) {
-	        	return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
-	        }
-		} catch (Exception e) {
-			e.printStackTrace();
-			return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
-		}
-        
-
+	public ResponseEntity<User> register(@RequestBody Client client){
 		Client c=userService.register(client);
 		if(c==null)
 			return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
 		else
 			return  new ResponseEntity<>(HttpStatus.OK);
 	}
-	
+	//da
 	@PostMapping("/products/{id}/addtocart") 
 	public ResponseEntity<?> addToCart(@PathVariable int id, @RequestBody Client client, @RequestHeader("Authorization") String token){
 		String username = authService.validateTokenAndGetUser(token); // Proverava token
         if (username == null || !username.equals(client.getUsername())) {
-        	return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR); // Ako je token nevalidan, vraća 401 Unauthorized
+        	return new ResponseEntity<>(HttpStatus.UNAUTHORIZED); // Ako je token nevalidan, vraća 401 Unauthorized
         }
         
 		
@@ -83,21 +70,21 @@ public class LoginController {
 		if(c==null)
 			return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
 		else
-			return  new ResponseEntity<>(HttpStatus.OK);
+			return  new ResponseEntity<>(c, HttpStatus.OK);
 	}
-
-	@PostMapping("/api/products/{id}")
+	//da
+	@PostMapping("/api/products/{id}/buy")
 	public ResponseEntity<Order> buy(@RequestBody Order order, @RequestHeader("Authorization") String token) {
 		String username = authService.validateTokenAndGetUser(token); 
         if (username == null || !username.equals(order.getClient().getUsername())) {
-        	return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR); 
+        	return new ResponseEntity<>(HttpStatus.UNAUTHORIZED); 
         }
 		
 		Order o=userService.buy(order);
 		if(o==null)
 			return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
 		else
-			return  new ResponseEntity<>(HttpStatus.OK);
+			return  new ResponseEntity<>(o, HttpStatus.OK);
 		
 	}
 	//za postmana za test ove fje http://localhost:8080/api/products/2
@@ -126,16 +113,18 @@ public class LoginController {
 	 * 
 	 * */ 
 	
-	//worker
+	//worker   da
 	@PostMapping("/worker/add")
-	public ResponseEntity<Worker> newWorker(@RequestBody Map<String, Object> mapa, @RequestHeader("Authorization") String token){
-		Worker me=null;
+	public ResponseEntity<?> newWorker(@RequestBody Map<String, Object> mapa, @RequestHeader("Authorization") String token){
+		String me="";
 		Worker worker=null;
 		try {
-			me=(Worker) mapa.get("worker");
-			worker=(Worker) mapa.get("newworker");
+			me=mapa.get("username").toString();
+			ObjectMapper objectMapper = new ObjectMapper();
+	        worker = objectMapper.convertValue(mapa.get("newworker"), Worker.class);
+		//	worker=(Worker) mapa.get("newworker");
 			String username = authService.validateTokenAndGetUser(token); 
-	        if (username == null || !username.equals(me.getUsername())) {
+	        if (username == null || !username.equals(me)) {
 	        	return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
 	        }
 		} catch (Exception e) {
@@ -158,12 +147,12 @@ public class LoginController {
 			
 	}
 	
-	//worker
+	//worker     da
 	@PutMapping("/worker/update")//samog sebe moze da menja, da bi radilo ovo za autentifikaciju
 	public ResponseEntity<Worker> updateWorker(@RequestBody Worker worker, @RequestHeader("Authorization") String token){
 		String username = authService.validateTokenAndGetUser(token); 
         if (username == null || !username.equals(worker.getUsername())) {
-        	return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR); 
+        	return new ResponseEntity<>(HttpStatus.UNAUTHORIZED); 
         }
         
         
@@ -174,32 +163,33 @@ public class LoginController {
 			if(w.getUsername().equals("-1")) //already exists, not created
 				return  new ResponseEntity<>(HttpStatus.BAD_REQUEST);
 			else
-				return  new ResponseEntity<>(HttpStatus.CREATED);//success
+				return  new ResponseEntity<>(w, HttpStatus.CREATED);//success
 		}
 			
 	}
 	
 	//worker
 	@DeleteMapping("/worker/delete")//samog sebe moze da menja, da bi radilo ovo za autentifikaciju
-	public ResponseEntity<?> deleteWorker(@RequestBody Worker worker, @RequestHeader("Authorization") String token){
+	public ResponseEntity<?> deleteWorker(@RequestBody String worker, @RequestHeader("Authorization") String token){
+		worker=worker.substring(1, worker.length()-1);
 		String username = authService.validateTokenAndGetUser(token); 
-        if (username == null || !username.equals(worker.getUsername())) {
-        	return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR); 
+        if (username == null || !username.equals(worker)) {
+        	return new ResponseEntity<>(HttpStatus.UNAUTHORIZED); 
         }
         
-		Worker w=userService.deleteWorker(worker);
+		String w=userService.deleteWorker(worker);
 		if(w==null)
 			return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
 		else 
 			return  new ResponseEntity<>(HttpStatus.OK);//success
 	}
 	
-	//worker
+	//worker     da
 	@GetMapping("/worker/all")
-	public ResponseEntity<?> workerList(@RequestBody Worker worker, @RequestHeader("Authorization") String token){
+	public ResponseEntity<?> workerList(@RequestHeader("Authorization") String token){
 		String username = authService.validateTokenAndGetUser(token); 
-        if (username == null || !username.equals(worker.getUsername())) {
-        	return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR); 
+        if (username == null) {
+        	return new ResponseEntity<>(HttpStatus.UNAUTHORIZED); 
         }
         
 		List<Worker> l=userService.workerList();

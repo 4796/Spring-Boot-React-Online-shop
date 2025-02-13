@@ -47,9 +47,8 @@ const AdminPage = () => {
           'Authorization': token
         },
         body: JSON.stringify({
-          worker: {
-            username: username
-          },
+          
+          username: username,
           newworker: newWorker
         })
       });

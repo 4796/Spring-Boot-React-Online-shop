@@ -6,9 +6,12 @@ import { v4 as uuidv4 } from 'uuid';
 
 export default function CartPage() {
     const [cartItems, setCartItems] = useState(() => {
-        // Parse the cart from sessionStorage and provide a fallback value
+       
         const savedCart = sessionStorage.getItem("cart");
         if (savedCart) {
+          if(savedCart=="undefined"){
+            return [];   
+          }
           const parsedCart = JSON.parse(savedCart);
           // Dodajemo UUID svakom proizvodu koji ga još nema
           return parsedCart.map(product => ({
@@ -60,20 +63,15 @@ export default function CartPage() {
 
 
 
-// Osigurajte da svi proizvodi imaju uuid
-const updatedCart = response.data.client.productsInCart.map(product => ({
-    ...product,
-    uuid: product.uuid || uuidv4(), // Dodajemo uuid ako ne postoji
-  }));
 
-  // Ažurirajte stanje i session storage
-  setCartItems(updatedCart);
+      const updatedCart = response.data.client.productsInCart.map(product => ({
+        ...product,
+        uuid: product.uuid || uuidv4(), // Dodajemo uuid ako ne postoji
+      }));
 
-
-
-  sessionStorage.setItem("cart", JSON.stringify(updatedCart));
-      // Osveži korpu nakon kupovine
-      setCartItems(response.data.client.productsInCart);
+      // Ažuriramo stanje i session storage samo jednom
+      setCartItems(updatedCart);
+      sessionStorage.setItem("cart", JSON.stringify(updatedCart));
     } catch (error) {
       console.error("Purchase failed:", error.response?.data || error.message);
       alert("Failed to complete the purchase.");

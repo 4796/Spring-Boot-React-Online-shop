@@ -10,16 +10,17 @@ const WorkersPage = () => {
       const username = sessionStorage.getItem('username');
       const pay = sessionStorage.getItem('pay');
 
-      const response = await fetch('/worker/delete', {
+      const response = await fetch('http://localhost:8080/worker/delete', {
         method: 'DELETE',
         headers: {
           'Content-Type': 'application/json',
           'Authorization': token
         },
-        body: JSON.stringify({ username, password: '', pay })
+        body: JSON.stringify( username ) //{}
       });
 
       if (response.ok) {
+        alert("Succesfully deleted account")
         sessionStorage.clear();
         navigate('/login');
       }

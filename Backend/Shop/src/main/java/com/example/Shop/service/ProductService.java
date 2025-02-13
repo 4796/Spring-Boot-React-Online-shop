@@ -1,5 +1,6 @@
 package com.example.Shop.service;
 
+import java.time.LocalDate;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,12 +28,20 @@ public class ProductService {
 
 	@Transactional
 	public Product addProduct(Product product) {
+		product.setDate(LocalDate.now());
+		if(product.getQuantity()<1)
+			product.setAveilable(false);
 		return repo.save(product);
 	}
 
 	@Transactional
-	public Product updateProduct(Product product) {
-		
+	public Product updateProduct(Product product) throws Exception {
+		if(product.getQuantity()<0)
+			throw new Exception("Invalid value for quantity");
+		if(product.getQuantity()<1)
+			product.setAveilable(false);
+		else
+			product.setAveilable(true);
 		return repo.save(product);
 	}
 

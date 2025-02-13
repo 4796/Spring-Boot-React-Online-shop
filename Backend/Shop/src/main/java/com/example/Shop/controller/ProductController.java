@@ -21,6 +21,8 @@ import com.example.Shop.model.Product;
 import com.example.Shop.model.Worker;
 import com.example.Shop.service.AuthService;
 import com.example.Shop.service.ProductService;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 
 @RestController
 @CrossOrigin
@@ -62,18 +64,20 @@ public class ProductController {
 			return  new ResponseEntity<>(p, HttpStatus.OK);
 	}
 	
-	//worker
+	//worker     da
 	@PostMapping("/products") 
 	public ResponseEntity<?> addProduct(@RequestBody Map<String, Object> mapa,  @RequestHeader("Authorization") String token){
 		Product product=null;
-		Worker w =null; 
+		String w =null; 
 		try {
-			w=(Worker) mapa.get("worker");
+			w= mapa.get("worker").toString();
 			String username = authService.validateTokenAndGetUser(token); 
-	        if (username == null || !username.equals(w.getUsername())) {
+	        if (username == null || !username.equals(w)) {
 	        	return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
 	        }
-			product= (Product) mapa.get("product");
+	        ObjectMapper objectMapper = new ObjectMapper();
+	        product = objectMapper.convertValue(mapa.get("product"), Product.class);
+			//product= (Product) mapa.get("product");
 		} catch (Exception e) {
 			e.printStackTrace();
 			return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
@@ -87,18 +91,23 @@ public class ProductController {
 			return  new ResponseEntity<>(p, HttpStatus.CREATED);
 	}
 	
-	//worker
+	//worker     da
 	@PutMapping("/products/{id}") 
-	public ResponseEntity<?> updateProduct(@PathVariable int id, @RequestBody Map<String, Object> mapa,  @RequestHeader("Authorization") String token){
+	public ResponseEntity<?> updateProduct(@PathVariable int id, @RequestBody Map<Object, Object> mapa,  @RequestHeader("Authorization") String token){
+		System.out.println(mapa);
 		Product product=null;
 		Worker w=null; 
 		try {
-			w=(Worker) mapa.get("worker");
+			ObjectMapper objectMapper = new ObjectMapper();
+			objectMapper.registerModule(new JavaTimeModule());
+	        w= objectMapper.convertValue(mapa.get("worker"), Worker.class);
+			//w=(Worker) mapa.get("worker");
 			String username = authService.validateTokenAndGetUser(token); 
 	        if (username == null || !username.equals(w.getUsername())) {
 	        	return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
 	        }
-			product= (Product) mapa.get("product");
+	        product= objectMapper.convertValue(mapa.get("product"), Product.class);
+			//product= (Product) mapa.get("product");
 		} catch (Exception e) {
 			e.printStackTrace();
 			return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
@@ -106,16 +115,23 @@ public class ProductController {
 		
 		
 		product.setId(id);
-		Product p=service.updateProduct(product);
+		Product p=null;
+		try {
+			p = service.updateProduct(product);
+		} catch (Exception e) {
+			p=null;
+			e.printStackTrace();
+		}
 		if(p==null)
 			return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
 		else
 			return  new ResponseEntity<>(p, HttpStatus.OK);
 	}
 
-	//worker
+	//worker    da
 	@DeleteMapping("/products/{id}") 
-	public ResponseEntity<?> deleteProduct(@PathVariable int id, Worker w, @RequestHeader("Authorization") String token){
+	public ResponseEntity<?> deleteProduct(@PathVariable int id, @RequestBody Worker w, @RequestHeader("Authorization") String token){
+		System.out.println("rad:"+w);
 		try {
 			String username = authService.validateTokenAndGetUser(token); 
 	        if (username == null || !username.equals(w.getUsername())) {
@@ -135,7 +151,7 @@ public class ProductController {
 			}	
 	}
 	
-
+		//da
 	@GetMapping("/products/search")  //http://localhost:8080/api/products/search?keyword=ef
 	public ResponseEntity<List<Product>> searchProducts(@RequestParam String keyword){
 		List<Product> l=service.searchProducts(keyword);

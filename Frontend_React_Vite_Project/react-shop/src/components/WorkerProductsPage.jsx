@@ -64,15 +64,20 @@ const ProductsPage = () => {
   const handleDeleteProduct = async (id) => {
     try {
       const token = sessionStorage.getItem('token');
-      const response = await fetch(`/products/${id}`, {
+      const response = await fetch(`http://localhost:8080/api/products/${id}`, {
         method: 'DELETE',
         headers: {
-          'Authorization': token
-        }
+          'Authorization': token,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          username: sessionStorage.getItem("username"),
+        })
       });
 
       if (response.ok) {
         fetchProducts();
+        alert("Succesfully deleted product");
       }
     } catch (error) {
       console.error('Error deleting product:', error);
@@ -82,14 +87,14 @@ const ProductsPage = () => {
   const handleUpdateProduct = async (id, updatedProduct) => {
     try {
       const token = sessionStorage.getItem('token');
-      const response = await fetch(`/products/${id}`, {
+      const response = await fetch(`http://localhost:8080/api/products/${id}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
           'Authorization': token
         },
         body: JSON.stringify({
-            worker: sessionStorage.getItem("username"),
+            worker: {username: sessionStorage.getItem("username")},
             product: updatedProduct
         })
       });
@@ -224,6 +229,7 @@ const ProductsPage = () => {
             <button 
               onClick={() => handleUpdateProduct(product.id, {
                 ...product,
+               // date: 
                 price: prompt('Enter new price:', product.price),
                 quantity: prompt('Enter new quantity:', product.quantity)
               })}
