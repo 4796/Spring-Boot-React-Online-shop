@@ -1,51 +1,114 @@
-import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
-import axios from "axios";
+import React from 'react';
+import { useNavigate } from 'react-router-dom';
 
-export default function ProductsPage() {
-  const [products, setProducts] = useState([]);
+const WorkersPage = () => {
   const navigate = useNavigate();
 
-  // Dohvatanje proizvoda prilikom učitavanja stranice
-  useEffect(() => {
-    const fetchProducts = async () => {
-      try {
-        const response = await axios.get("http://localhost:8080/api/products");
-        setProducts(response.data);
-      } catch (error) {
-        console.error("Failed to fetch products:", error);
-      }
-    };
+  const handleDeleteAccount = async () => {
+    try {
+      const token = sessionStorage.getItem('token');
+      const username = sessionStorage.getItem('username');
+      const pay = sessionStorage.getItem('pay');
 
-    fetchProducts();
-  }, []);
+      const response = await fetch('/worker/delete', {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': token
+        },
+        body: JSON.stringify({ username, password: '', pay })
+      });
+
+      if (response.ok) {
+        sessionStorage.clear();
+        navigate('/login');
+      }
+    } catch (error) {
+      console.error('Error deleting account:', error);
+    }
+  };
 
   return (
-    <div className="bg-gray-100 min-h-screen">
-      {/* Header */}
-      <header className="bg-blue-600 text-white py-4 px-6 flex justify-between items-center shadow-md">
-        <h1 className="text-2xl font-bold">Products</h1>
+    <div style={{
+      padding: '20px',
+      maxWidth: '800px',
+      margin: '0 auto'
+    }}>
+      <div style={{
+        display: 'flex',
+        gap: '20px',
+        marginBottom: '20px',
+        justifyContent: 'center'
+      }}>
         <button 
-          onClick={() => navigate("/cart")} 
-          className="bg-white text-blue-600 px-4 py-2 rounded-md shadow hover:bg-gray-200"
+          style={{
+            padding: '20px 40px',
+            fontSize: '24px',
+            border: 'none',
+            borderRadius: '8px',
+            backgroundColor: '#4CAF50',
+            color: 'white',
+            cursor: 'pointer',
+            transition: 'background-color 0.3s'
+          }}
+          onClick={() => navigate('/worker/products')}
         >
-          View Cart
+          Products
         </button>
-      </header>
-
-      {/* Lista proizvoda */}
-      <div className="container mx-auto py-6 px-4 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-        {products.map((product) => (
-          <div key={product.id} className="bg-white p-4 rounded-lg shadow-md">
-            <img src={product.image} alt={product.name} className="w-full h-40 object-cover rounded-md" />
-            <h2 className="text-lg font-bold mt-2">{product.name}</h2>
-            <p className="text-gray-600">${product.price}</p>
-            <button className="mt-2 bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700">
-              Add to Cart
-            </button>
-          </div>
-        ))}
+        <button 
+          style={{
+            padding: '20px 40px',
+            fontSize: '24px',
+            border: 'none',
+            borderRadius: '8px',
+            backgroundColor: '#4CAF50',
+            color: 'white',
+            cursor: 'pointer',
+            transition: 'background-color 0.3s'
+          }}
+          onClick={() => navigate('/worker/admin')}
+        >
+          Admin
+        </button>
+      </div>
+      <div style={{
+        display: 'flex',
+        gap: '10px',
+        justifyContent: 'center'
+      }}>
+        <button 
+          style={{
+            padding: '10px 20px',
+            fontSize: '16px',
+            border: 'none',
+            borderRadius: '4px',
+            backgroundColor: '#2196F3',
+            color: 'white',
+            cursor: 'pointer',
+            transition: 'background-color 0.3s'
+          }}
+          onClick={() => navigate('/worker/update')}
+        >
+          Update this account
+        </button>
+        <button 
+          style={{
+            padding: '10px 20px',
+            fontSize: '16px',
+            border: 'none',
+            borderRadius: '4px',
+            backgroundColor: '#f44336',
+            color: 'white',
+            cursor: 'pointer',
+            transition: 'background-color 0.3s'
+          }}
+          onClick={handleDeleteAccount}
+        >
+          Delete this account
+        </button>
       </div>
     </div>
   );
-}
+};
+
+export default WorkersPage;

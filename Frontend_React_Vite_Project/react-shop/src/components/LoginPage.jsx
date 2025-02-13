@@ -24,6 +24,7 @@ export default function LoginPage() {
       sessionStorage.setItem("username", response.data.username);
       sessionStorage.setItem("cart", JSON.stringify(response.data.productsInCart));
       sessionStorage.setItem("name", response.data.name);
+      sessionStorage.setItem("pay", response.data.name);
       if (response.data.hasOwnProperty('pay')) {
         //worker
         navigate('/worker');
@@ -39,13 +40,14 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="flex items-center justify-center h-screen bg-gray-100">
-      <div className="w-96 p-6 bg-white rounded-lg shadow-lg">
-        <h2 className="text-2xl font-bold text-center mb-4">Login</h2>
+    <div className="flex flex-col items-center justify-center h-screen bg-gray-100">
+  <h1 className="text-4xl font-extrabold mb-8 text-blue-400">ONLINE SHOP</h1>
+  <div className="w-96 p-6 bg-white rounded-lg shadow-lg">
+    <h2 className="text-2xl font-bold text-center mb-4 text-blue-400">Login</h2>
         {error && <p className="text-red-500 text-center">{error}</p>}
         <form onSubmit={handleLogin} className="space-y-4">
           <div>
-            <label className="block text-sm font-medium">Username</label>
+            <label className="block text-sm font-medium text-blue-400 mb-1" >Username</label>
             <input
               type="text"
               placeholder="Enter your username"
@@ -56,7 +58,7 @@ export default function LoginPage() {
             />
           </div>
           <div>
-            <label className="block text-sm font-medium">Password</label>
+            <label className="block text-sm font-medium text-blue-400 mb-1">Password</label>
             <input
               type="password"
               placeholder="Enter your password"
@@ -72,6 +74,17 @@ export default function LoginPage() {
           >
             Login
           </button>
+
+          <button
+  onClick={() => navigate("/register")}
+  className="w-full bg-gray-500 text-white py-2 rounded-md hover:bg-gray-600 transition duration-200 mt-2"
+>
+  Register
+</button>
+
+
+
+
         </form>
       </div>
     </div>
